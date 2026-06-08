@@ -1,0 +1,53 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: liberty-app
+  labels:
+    app: liberty-app
+spec:
+  replicas: 2
+  revisionHistoryLimit: 5
+  
+  selector:
+    matchLabels:
+      app: liberty-app
+  
+  template:
+    metadata:
+      labels:
+        app: liberty-app
+    spec:
+      containers:
+      - name: liberty
+        image: image-registry.openshift-image-registry.svc:5000/liberty-demo-prod/liberty-app:main
+        ports:
+        - containerPort: 9080
+          name: http
+        - containerPort: 9443
+          name: https
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: 9080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 9080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+  
+  strategy:
+    blueGreen:
+      activeService: liberty-app
+      previewService: liberty-app-preview
+      autoPromotionEnabled: false
+      scaleDownDelaySeconds: 30
