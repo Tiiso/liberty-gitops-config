@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: liberty
-        image: image-registry.openshift-image-registry.svc:5000/liberty-demo-prod/liberty-app:main
+        image: image-registry.openshift-image-registry.svc:5000/liberty-demo-prod/liberty-app
         ports:
         - containerPort: 9080
           name: http
